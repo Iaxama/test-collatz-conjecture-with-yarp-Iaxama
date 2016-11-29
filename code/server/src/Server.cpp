@@ -61,6 +61,7 @@ double Server::getPeriod() {
 
 double Server::get_response(const double request)
 {
-    return 3 *request;
+
+    return request;
 }
 

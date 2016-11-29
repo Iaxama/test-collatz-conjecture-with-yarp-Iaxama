@@ -2,6 +2,13 @@
 
 
 bool Client::updateModule(){
+    int request;
+    std::cout << "Insert number to verify" << std::endl;
+    scanf("%d",&request);
+    std::cout << "get_response(request) = " << get_response(request) << std::endl;
+
+
+
     return true;
 }
 
@@ -10,7 +17,7 @@ bool Client::configure(yarp::os::ResourceFinder &rf){
             rf.check("name", yarp::os::Value("Client")).asString();
     yarp::os::RFModule::setName(moduleName.c_str());
 
-    std::string rpcPortName =  "/";
+    rpcPortName =  "/";
     rpcPortName += getName();
     rpcPortName += "/rpc";
 
@@ -19,11 +26,30 @@ bool Client::configure(yarp::os::ResourceFinder &rf){
         return false;
     }
 
+    requestPortName =  "/";
+    requestPortName += getName();
+    requestPortName += "/request";
+
+    if (!requestPort.open(requestPortName.c_str())) {
+        std::cout << getName() << ": Unable to open port " << requestPortName << std::endl;
+        return false;
+    }
+    responsePortName =  "/";
+    responsePortName += getName();
+    responsePortName += "/response";
+
+    if (!responsePort.open(responsePortName.c_str())) {
+        std::cout << getName() << ": Unable to open port " << responsePortName << std::endl;
+        return false;
+    }
+
     this->yarp().attachAsClient(rpcPort);
+
 }
 
 bool Client::close() {
-
+    requestPort.close();
+    responsePort.close();
     rpcPort.close();
     return true;
 }

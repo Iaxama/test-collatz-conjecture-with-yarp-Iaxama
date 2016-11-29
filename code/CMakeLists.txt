@@ -9,7 +9,7 @@ find_package(ICUBcontrib REQUIRED)
 
 # Set build directory
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/server/bin)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 
 include(YarpIDL)
@@ -18,12 +18,15 @@ list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 
+set(THRIFT_GENERATED_LIBS "${CMAKE_CURRENT_SOURCE_DIR}/lib")
+yarp_idl_to_dir(comm_interface.thrift ${THRIFT_GENERATED_LIBS} sources headers include_dirs)
 
-set(idl_files comm_interface.thrift)
-yarp_add_idl(IDL_GEN_FILES comm_interface.thrift)
-
+include_directories(${THRIFT_GENERATED_LIBS}/include)
+include_directories(common)
 add_library(comm_IDL_interface
-        ${IDL_GEN_FILES})
+        ${THRIFT_GENERATED_LIBS}/include/CommInterface.h
+        ${THRIFT_GENERATED_LIBS}/src/CommInterface.cpp
+        )
 
 add_subdirectory(client)
 add_subdirectory(server)

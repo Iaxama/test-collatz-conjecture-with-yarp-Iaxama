@@ -1,13 +1,10 @@
-//
-// Created by miacono on 24/11/16.
-//
-
 #include <Client.h>
 
 int main(int argc, char * argv[]){
 
     /* initialize yarp network */
-    yarp::os::Network::init();
+    yarp::os::Network network;
+    network.init();
 
     /* create the module */
     Client client;
@@ -17,9 +14,8 @@ int main(int argc, char * argv[]){
     rf.setVerbose( true );
     rf.configure( argc, argv );
 
-    /* run the module: runModule() calls configure first and, if successful, it then runs */
     client.runModule(rf);
-    yarp::os::Network::fini();
+    network.fini();
 
     return 0;
 }
