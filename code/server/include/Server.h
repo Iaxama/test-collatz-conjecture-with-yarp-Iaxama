@@ -6,16 +6,26 @@
 #define COLLATZ_CONJECTURE_SERVER_H
 
 #include <yarp/os/all.h>
-#include <CommInterface.h>
+#include <ServerIDLInterface.h>
+#include <vocabs.hpp>
+#include <queue>
 
 #define PERIOD 1
 
-class Server : public yarp::os::RFModule, public CommInterface{
+class Server : public yarp::os::RFModule, public ServerIDLInterface{
 
 private:
     yarp::os::BufferedPort<yarp::os::Bottle> requestPort;
     yarp::os::BufferedPort<yarp::os::Bottle> responsePort;
     yarp::os::Port rpcPort;
+    std::vector<int> FIFO;
+
+    int nResponse;
+    int tResponse;
+    int counter;
+    bool isRunning;
+    void computeResponse(int request);
+    void sendResponse(int request);
 
 public:
 
@@ -25,8 +35,11 @@ public:
     double getPeriod();
 
     //Thrift Methods
-    double get_response(const double request);
-
+    void start();
+    void stop();
+    void pause();
+    void printFIFO();
+    void emptyFIFO();
 };
 
 #endif //COLLATZ_CONJECTURE_SERVER_H

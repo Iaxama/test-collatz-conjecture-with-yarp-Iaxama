@@ -18,15 +18,7 @@ list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 
-set(THRIFT_GENERATED_LIBS "${CMAKE_CURRENT_SOURCE_DIR}/lib")
-yarp_idl_to_dir(comm_interface.thrift ${THRIFT_GENERATED_LIBS} sources headers include_dirs)
-
-include_directories(${THRIFT_GENERATED_LIBS}/include)
 include_directories(common)
-add_library(comm_IDL_interface
-        ${THRIFT_GENERATED_LIBS}/include/CommInterface.h
-        ${THRIFT_GENERATED_LIBS}/src/CommInterface.cpp
-        )
 
 add_subdirectory(client)
 add_subdirectory(server)

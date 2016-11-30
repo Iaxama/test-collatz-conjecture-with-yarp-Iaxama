@@ -2,9 +2,8 @@
 #define COLLATZ_CONJECTURE_CLIENT_H
 
 #include <yarp/os/all.h>
-#include <CommInterface.h>
-
-class Client : public yarp::os::RFModule, public CommInterface{
+#include <vocabs.hpp>
+class Client : public yarp::os::RFModule{
 private:
 
     yarp::os::Port rpcPort;
@@ -13,6 +12,9 @@ private:
     std::string requestPortName;
     yarp::os::Port responsePort;
     std::string responsePortName;
+    int testOutcome;
+    bool readyToSend;
+    void collatz_test(int n, int t);
 
 public:
 
@@ -20,6 +22,8 @@ public:
     bool configure(yarp::os::ResourceFinder &rf);
     bool close();
 
+    //Thrift methods
+    void sendRequest();
 };
 
 #endif //COLLATZ_CONJECTURE_CLIENT_H

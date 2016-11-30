@@ -1,7 +1,3 @@
-//
-// Created by miacono on 24/11/16.
-//
-
 #include <Server.h>
 
 int main(int argc, char * argv[]){

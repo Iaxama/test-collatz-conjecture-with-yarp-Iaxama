@@ -1,17 +1,38 @@
 #include <Server.h>
-//#include <server_interface.thrift>
 
 bool Server::updateModule(){
-    yarp::os::Bottle* request= requestPort.read(false);
-    if (request != NULL){
-        double response = get_response(request->get(0).asDouble());
-        yarp::os::Bottle &responseBottle = responsePort.prepare();
-        responseBottle.clear();
-        responseBottle.addDouble(response);
-        responsePort.write(false);
+    yarp::os::Bottle* inputBottle= requestPort.read(false);
+    if (inputBottle != NULL && isRunning){
+        if (inputBottle->get(0).asVocab() != COLLATZ_VOCAB_REQ_ITEM) {
+            std::cerr << "Server side: Incorrect Identifier received. Ignoring message," << std::endl;
+            return true;
+        }
+        sendResponse(inputBottle->get(1).asInt());
     };
 
     return true;
+}
+
+void Server::sendResponse(int request) {
+    computeResponse(request);
+    yarp::os::Bottle &responseBottle = responsePort.prepare();
+    responseBottle.clear();
+    responseBottle.addVocab(COLLATZ_VOCAB_ITEM);
+    responseBottle.addDouble(nResponse);
+    responseBottle.addDouble(tResponse);
+    responsePort.write(false);
+}
+
+void Server::computeResponse(int request) {
+
+    counter++;
+    FIFO.push_back(request);
+    tResponse = FIFO.front() - 1;
+    nResponse = counter;
+    for (std::vector<int>::iterator iterator = FIFO.begin(); iterator != FIFO.end(); ++iterator) {
+        if (*iterator == request)
+            FIFO.erase(iterator);
+    }
 }
 
 bool Server::configure(yarp::os::ResourceFinder &rf){
@@ -44,6 +65,7 @@ bool Server::configure(yarp::os::ResourceFinder &rf){
         return false;
     }
 
+    start();
     return this->yarp().attachAsServer(rpcPort);
 
 }
@@ -59,9 +81,32 @@ double Server::getPeriod() {
     return PERIOD;
 }
 
-double Server::get_response(const double request)
-{
-
-    return request;
+void Server::start() {
+    isRunning = true;
+    std::cout << "ServerRunning" << std::endl;
 }
+
+void Server::stop() {
+    close();
+    std::cout << "Server stopping" << std::endl;
+}
+
+void Server::pause() {
+    std::cout << "Server in pause" << std::endl;
+    isRunning = false;
+}
+
+void Server::printFIFO() {
+    for (std::vector<int>::iterator iterator = FIFO.begin(); iterator != FIFO.end(); ++iterator) {
+        std::cout << "FIFO = " << std::endl;
+        std::cout << *iterator << std::endl;
+    }
+}
+
+void Server::emptyFIFO() {
+    std::cout << "Emptying FIFO and reinitializing server" << std::endl;
+    FIFO.empty();
+    counter = 0;
+}
+
 
