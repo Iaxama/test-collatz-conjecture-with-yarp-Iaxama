@@ -1,38 +1,37 @@
 #include <Client.h>
 
 bool Client::updateModule(){
-
-    yarp::os::Bottle inputBottle;
-    if (responsePort.read(inputBottle)){
-        if (inputBottle.get(0).asVocab() != COLLATZ_VOCAB_ITEM) {
-            std::cerr << "Client side: Incorrect Identifier received. Ignoring message," << std::endl;
-            return true;
-        }
-        int n = inputBottle.get(1).asInt();
-        int t = inputBottle.get(2).asInt();
-        std::cout << "Received the pair (" << n << ", " << t << ")" << std::endl;
-        collatz_test(n,t);
-        readyToSend = true;
-        return true;
-    }
-
-    readyToSend = false;
+//    sendRequest();
     return true;
 }
 
 void Client::sendRequest() {
-    if (readyToSend) {
-        yarp::os::Bottle outputBottle;
-        outputBottle.addVocab(COLLATZ_VOCAB_REQ_ITEM);
-        outputBottle.addInt(testOutcome);
-        requestPort.write(outputBottle);
-    } else{
-        std::cout << "Client side: Nothing to be sent. Sending 0 request" << std::endl;
+
+    yarp::os::Bottle outputBottle;
+    yarp::os::Bottle inputBottle;
+    outputBottle.addVocab(COLLATZ_VOCAB_REQ_ITEM);
+    outputBottle.addInt(n);
+    if (testOutcome == 0) {
+        std::cout << "Client side: Test unsuccessful. Sending 0 request" << std::endl;
     }
+    std::cout << "Sending request " << n << std::endl;
+    clientPort.write(outputBottle,inputBottle);
+
+    if (inputBottle.get(0).asVocab() != COLLATZ_VOCAB_ITEM) {
+        std::cerr << "Client side: Incorrect Identifier received. Ignoring message," << std::endl;
+        return;
+    }
+    n = inputBottle.get(1).asInt();
+    t = inputBottle.get(2).asInt();
+    std::cout << "Received the pair (" << n << ", " << t << ")" << std::endl;
+    collatz_test(n,t);
+
 }
 
 void Client::collatz_test(int n, int t) {
-    if (t==0) {
+
+    if (t <= 0) {
+        std::cout << "Threshold 0 would not converge. Using 1 instead" << std::endl;
         t = 1;
     }
     while (n > t){
@@ -44,45 +43,45 @@ void Client::collatz_test(int n, int t) {
         }
     }
     testOutcome = n;
-    std::cout << "The test outcome is" << testOutcome << std::endl;
+    std::cout << "The test outcome is " << testOutcome << std::endl;
 }
 
 bool Client::configure(yarp::os::ResourceFinder &rf){
     std::string moduleName =
             rf.check("name", yarp::os::Value("Client")).asString();
+
+    std::string id = rf.check("id",yarp::os::Value(0)).asString();
+    moduleName += "_";
+    moduleName += id;
+    std::cout << "moduleName = " << moduleName << std::endl;
     yarp::os::RFModule::setName(moduleName.c_str());
+
+
 
     rpcPortName =  "/";
     rpcPortName += getName();
-    rpcPortName += "/rpc";
+    rpcPortName += "/commands";
 
     if (!rpcPort.open(rpcPortName.c_str())) {
         std::cout << getName() << ": Unable to open port " << rpcPortName << std::endl;
         return false;
     }
 
-    requestPortName =  "/";
-    requestPortName += getName();
-    requestPortName += "/request:o";
+    clientPortName =  "/";
+    clientPortName += getName();
 
-    if (!requestPort.open(requestPortName.c_str())) {
-        std::cout << getName() << ": Unable to open port " << requestPortName << std::endl;
+    if (!clientPort.open(clientPortName.c_str())) {
+        std::cout << getName() << ": Unable to open port " << clientPortName << std::endl;
         return false;
     }
-    responsePortName =  "/";
-    responsePortName += getName();
-    responsePortName += "/response:i";
 
-    if (!responsePort.open(responsePortName.c_str())) {
-        std::cout << getName() << ": Unable to open port " << responsePortName << std::endl;
-        return false;
-    }
-    readyToSend = false;
+    testOutcome = 0;
+    this->yarp().attachAsServer(rpcPort);
+    return true;
 }
 
 bool Client::close() {
-    requestPort.close();
-    responsePort.close();
+    clientPort.close();
     rpcPort.close();
     return true;
 }

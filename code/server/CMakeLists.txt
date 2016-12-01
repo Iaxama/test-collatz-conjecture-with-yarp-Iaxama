@@ -31,4 +31,4 @@ target_link_libraries(${PROJECTNAME}
                     server
         )
 
-install (TARGETS ${PROJECTNAME} DESTINATION /usr/local/bin)
+install (TARGETS ${PROJECTNAME} DESTINATION bin)

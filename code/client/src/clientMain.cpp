@@ -13,9 +13,9 @@ int main(int argc, char * argv[]){
     yarp::os::ResourceFinder rf;
     rf.setVerbose( true );
     rf.configure( argc, argv );
-
-    network.connect("/Client/request:o","/Server/request:i");
-    network.connect("/Client/response:i","/Server/response:o");
+//
+//    network.connect("/Client/request:o","/Server/request:i");
+//    network.connect("/Client/response:i","/Server/response:o");
 
     client.runModule(rf);
     network.fini();

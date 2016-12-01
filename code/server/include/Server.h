@@ -15,9 +15,12 @@
 class Server : public yarp::os::RFModule, public ServerIDLInterface{
 
 private:
-    yarp::os::BufferedPort<yarp::os::Bottle> requestPort;
-    yarp::os::BufferedPort<yarp::os::Bottle> responsePort;
+//    yarp::os::BufferedPort<yarp::os::Bottle> requestPort;
+//    yarp::os::BufferedPort<yarp::os::Bottle> responsePort;
     yarp::os::Port rpcPort;
+    std::string rpcPortName;
+    yarp::os::RpcServer serverPort;
+    std::string serverPortName;
     std::vector<int> FIFO;
 
     int nResponse;

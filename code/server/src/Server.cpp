@@ -1,33 +1,35 @@
 #include <Server.h>
 
-bool Server::updateModule(){
-    yarp::os::Bottle* inputBottle= requestPort.read(false);
-    if (inputBottle != NULL && isRunning){
-        if (inputBottle->get(0).asVocab() != COLLATZ_VOCAB_REQ_ITEM) {
+bool Server::updateModule() {
+
+    yarp::os::Bottle inputBottle;
+    serverPort.read(inputBottle, true);
+
+    if (isRunning) {
+        if (inputBottle.get(0).asVocab() != COLLATZ_VOCAB_REQ_ITEM) {
             std::cerr << "Server side: Incorrect Identifier received. Ignoring message," << std::endl;
             return true;
         }
-        sendResponse(inputBottle->get(1).asInt());
-    };
-
+        sendResponse(inputBottle.get(1).asInt());
+    }
     return true;
 }
 
 void Server::sendResponse(int request) {
     computeResponse(request);
-    yarp::os::Bottle &responseBottle = responsePort.prepare();
+    yarp::os::Bottle responseBottle;
     responseBottle.clear();
     responseBottle.addVocab(COLLATZ_VOCAB_ITEM);
     responseBottle.addDouble(nResponse);
     responseBottle.addDouble(tResponse);
-    responsePort.write(false);
+    serverPort.reply(responseBottle);
 }
 
 void Server::computeResponse(int request) {
 
     counter++;
-    FIFO.push_back(request);
-    tResponse = FIFO.front() - 1;
+    FIFO.push_back(counter);
+    tResponse = FIFO.back() - 1;
     nResponse = counter;
     for (std::vector<int>::iterator iterator = FIFO.begin(); iterator != FIFO.end(); ++iterator) {
         if (*iterator == request)
@@ -40,39 +42,30 @@ bool Server::configure(yarp::os::ResourceFinder &rf){
             rf.check("name", yarp::os::Value("Server")).asString();
     yarp::os::RFModule::setName(moduleName.c_str());
 
-    //
-    std::string outputPortName =  "/";
-    outputPortName += getName();
+    rpcPortName =  "/";
+    rpcPortName += getName();
+    rpcPortName  += "/commands";
 
-    if (!rpcPort.open(outputPortName.c_str())) {
-        std::cout << getName() << ": Unable to open port " << outputPortName << std::endl;
+    if (!rpcPort.open(rpcPortName.c_str())) {
+        std::cout << getName() << ": Unable to open port " << rpcPortName << std::endl;
         return false;
     }
 
-    std::string requestPortName = "/";
-    requestPortName += getName();
-    requestPortName += "/request:i";
-    if (!requestPort.open(requestPortName.c_str())) {
-        std::cout << getName() << ": Unable to open port " << requestPortName << std::endl;
+    serverPortName = "/";
+    serverPortName += getName();
+
+    if (!serverPort.open(serverPortName.c_str())) {
+        std::cout << getName() << ": Unable to open port " << serverPortName << std::endl;
         return false;
     }
 
-    std::string responsePortName = "/";
-    responsePortName += getName();
-    responsePortName += "/response:o";
-    if (!responsePort.open(responsePortName.c_str())) {
-        std::cout << getName() << ": Unable to open port " << responsePortName << std::endl;
-        return false;
-    }
-
+    counter = 0;
     start();
     return this->yarp().attachAsServer(rpcPort);
-
 }
 
 bool Server::close() {
-    requestPort.close();
-    responsePort.close();
+    serverPort.close();
     rpcPort.close();
     return true;
 }
@@ -97,8 +90,8 @@ void Server::pause() {
 }
 
 void Server::printFIFO() {
+    std::cout << "FIFO = " << std::endl;
     for (std::vector<int>::iterator iterator = FIFO.begin(); iterator != FIFO.end(); ++iterator) {
-        std::cout << "FIFO = " << std::endl;
         std::cout << *iterator << std::endl;
     }
 }
@@ -108,5 +101,4 @@ void Server::emptyFIFO() {
     FIFO.empty();
     counter = 0;
 }
-
 

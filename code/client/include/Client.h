@@ -3,17 +3,17 @@
 
 #include <yarp/os/all.h>
 #include <vocabs.hpp>
-class Client : public yarp::os::RFModule{
+#include <ClientIDLInterface.h>
+class Client : public yarp::os::RFModule, ClientIDLInterface{
 private:
 
     yarp::os::Port rpcPort;
     std::string rpcPortName;
-    yarp::os::Port requestPort;
-    std::string requestPortName;
-    yarp::os::Port responsePort;
-    std::string responsePortName;
+    yarp::os::RpcClient clientPort;
+    std::string clientPortName;
     int testOutcome;
-    bool readyToSend;
+    int n;
+    int t;
     void collatz_test(int n, int t);
 
 public:
