@@ -98,7 +98,7 @@ void Server::printFIFO() {
 
 void Server::emptyFIFO() {
     std::cout << "Emptying FIFO and reinitializing server" << std::endl;
-    FIFO.empty();
+    FIFO.clear();
     counter = 0;
 }
 
