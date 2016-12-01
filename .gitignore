@@ -1,6 +1,8 @@
 
 # Compiled source #
 ###################
+build/
+bin/
 *.com
 *.class
 *.dll
@@ -26,6 +28,7 @@
 *.log
 *.sql
 *.sqlite
+*.user
 
 # OS generated files #
 ######################
@@ -36,6 +39,7 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+*~
 
 #IDE files#
 #####################
