@@ -11,19 +11,23 @@ private:
     std::string rpcPortName;
     yarp::os::RpcClient clientPort;
     std::string clientPortName;
-    int testOutcome;
     int n;
     int t;
-    void collatz_test(int n, int t);
+    bool autoTrigger;
+    double period;
+    double collatz_test(int n, int t);
 
 public:
 
     bool updateModule();
     bool configure(yarp::os::ResourceFinder &rf);
     bool close();
+    double getPeriod();
 
     //Thrift methods
-    void sendRequest();
+    bool sendRequest();
+    bool autoSendRequest(double period);
+    bool stopSendRequest();
 };
 
 #endif //COLLATZ_CONJECTURE_CLIENT_H

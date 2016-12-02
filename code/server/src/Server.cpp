@@ -39,7 +39,7 @@ void Server::computeResponse(int request) {
 
 bool Server::configure(yarp::os::ResourceFinder &rf){
     std::string moduleName =
-            rf.check("name", yarp::os::Value("Server")).asString();
+            rf.check("name", yarp::os::Value("server")).asString();
     yarp::os::RFModule::setName(moduleName.c_str());
 
     rpcPortName =  "/";

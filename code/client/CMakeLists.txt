@@ -2,7 +2,6 @@
 # Authors: Massimiliano Iacono
 # CopyPolicy: Released under the terms of the GNU GPL v2.0.
 
-cmake_minimum_required(VERSION 2.6)
 set(PROJECTNAME collatz-client)
 
 project(${PROJECTNAME})
@@ -34,4 +33,4 @@ target_link_libraries(${PROJECTNAME}
         client
         )
 
-install (TARGETS ${PROJECTNAME} DESTINATION /usr/local/bin)
+install (TARGETS ${PROJECTNAME} DESTINATION bin)

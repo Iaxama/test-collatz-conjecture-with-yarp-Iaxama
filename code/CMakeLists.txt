@@ -1,10 +1,8 @@
-
 project(collatz-conjecture)
 
 cmake_minimum_required(VERSION 2.8.9)
 
 find_package(YARP REQUIRED)
-find_package(ICUB REQUIRED)
 find_package(ICUBcontrib REQUIRED)
 
 # Set build directory
@@ -15,10 +13,10 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 include(YarpIDL)
 
 list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH})
-list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 
 include_directories(common)
+include_directories(${YARP_INLCUDE_DIRS})
 
 add_subdirectory(client)
 add_subdirectory(server)

@@ -1,4 +1,6 @@
 #client_interface.thrift
 service ClientIDLInterface {
-    void sendRequest();
+    bool sendRequest();
+    bool autoSendRequest (1:double period);
+    bool stopSendRequest();
 }

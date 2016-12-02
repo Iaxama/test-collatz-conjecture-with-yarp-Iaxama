@@ -31,27 +31,27 @@
     </module>
 
     <connection>
-        <from>/Client_a</from>
-        <to>/Server</to>
+        <from>/client_a</from>
+        <to>/server</to>
         <protocol>tcp</protocol>
     </connection>
 
 
     <connection>
-        <from>/Client_b</from>
-        <to>/Server</to>
+        <from>/client_b</from>
+        <to>/server</to>
         <protocol>tcp</protocol>
     </connection>
 
     <connection>
-        <from>/Client_c</from>
-        <to>/Server</to>
+        <from>/client_c</from>
+        <to>/server</to>
         <protocol>tcp</protocol>
     </connection>
 
     <connection>
-        <from>/Client_d</from>
-        <to>/Server</to>
+        <from>/client_d</from>
+        <to>/server</to>
         <protocol>tcp</protocol>
     </connection>
 

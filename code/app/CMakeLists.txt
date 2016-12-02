@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 2.6)
-
 set(PROJECTNAME collatz_client_server)
 
 include(YarpInstallationHelpers)

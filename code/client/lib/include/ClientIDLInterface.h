@@ -13,7 +13,9 @@ class ClientIDLInterface;
 class ClientIDLInterface : public yarp::os::Wire {
 public:
   ClientIDLInterface();
-  virtual void sendRequest();
+  virtual bool sendRequest();
+  virtual bool autoSendRequest(const double period);
+  virtual bool stopSendRequest();
   virtual bool read(yarp::os::ConnectionReader& connection);
   virtual std::vector<std::string> help(const std::string& functionName="--all");
 };
