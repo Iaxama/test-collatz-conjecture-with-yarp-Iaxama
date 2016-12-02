@@ -1,0 +1,58 @@
+<application>
+    <name> collatz_client_server </name>
+
+    <module>
+        <name> collatz-server </name>
+        <node> localhost </node>
+    </module>
+
+    <module>
+        <name> collatz-client </name>
+        <node> localhost </node>
+        <parameters>--id a</parameters>
+    </module>
+
+    <module>
+        <name> collatz-client </name>
+        <node> localhost </node>
+        <parameters>--id b</parameters>
+    </module>
+
+    <module>
+        <name> collatz-client </name>
+        <node> localhost </node>
+        <parameters>--id c</parameters>
+    </module>
+
+    <module>
+        <name> collatz-client </name>
+        <node> localhost </node>
+        <parameters>--id d</parameters>
+    </module>
+
+    <connection>
+        <from>/Client_a</from>
+        <to>/Server</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+
+    <connection>
+        <from>/Client_b</from>
+        <to>/Server</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/Client_c</from>
+        <to>/Server</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/Client_d</from>
+        <to>/Server</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+</application>
