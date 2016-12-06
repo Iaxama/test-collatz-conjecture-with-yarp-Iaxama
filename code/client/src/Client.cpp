@@ -61,12 +61,13 @@ bool Client::configure(yarp::os::ResourceFinder &rf){
 
 
 
-    rpcPortName =  "/";
-    rpcPortName += getName();
-    rpcPortName += "/commands";
+    commandPortName =  "/";
+    commandPortName += getName();
+    commandPortName += "/commands";
 
-    if (!rpcPort.open(rpcPortName.c_str())) {
-        std::cout << getName() << ": Unable to open port " << rpcPortName << std::endl;
+    if (!commandPort.open(commandPortName.c_str())) {
+        std::cout << getName() << ": Unable to open port " << commandPortName << std::endl;
+        close();
         return false;
     }
 
@@ -75,18 +76,19 @@ bool Client::configure(yarp::os::ResourceFinder &rf){
 
     if (!clientPort.open(clientPortName.c_str())) {
         std::cout << getName() << ": Unable to open port " << clientPortName << std::endl;
+        close();
         return false;
     }
 
     period = 1;
     autoTrigger = false;
-    this->yarp().attachAsServer(rpcPort);
+    this->yarp().attachAsServer(commandPort);
     return true;
 }
 
 bool Client::close() {
     clientPort.close();
-    rpcPort.close();
+    commandPort.close();
     return true;
 }
 
@@ -97,8 +99,10 @@ double Client::getPeriod() {
 bool Client::autoSendRequest(const double period) {
     autoTrigger = true;
     this->period = period;
+    return true;
 }
 
 bool Client::stopSendRequest() {
     autoTrigger = false;
+    return true;
 }

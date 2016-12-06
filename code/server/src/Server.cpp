@@ -2,27 +2,30 @@
 
 bool Server::updateModule() {
 
-    yarp::os::Bottle inputBottle;
-    serverPort.read(inputBottle, true);
+
+    serverPort.read(request, true);
 
     if (isRunning) {
-        if (inputBottle.get(0).asVocab() != COLLATZ_VOCAB_REQ_ITEM) {
-            std::cerr << "Server side: Incorrect Identifier received. Ignoring message," << std::endl;
+        yarp::os::Mutex mutex;
+        mutex.lock();
+        if (request.get(0).asVocab() != COLLATZ_VOCAB_REQ_ITEM) {
+            std::cerr << "Server side: Incorrect Identifier received. Ignoring message" << std::endl;
             return true;
         }
-        sendResponse(inputBottle.get(1).asInt());
+        sendResponse(request.get(1).asInt());
+        mutex.unlock();
     }
     return true;
 }
 
 void Server::sendResponse(int request) {
     computeResponse(request);
-    yarp::os::Bottle responseBottle;
-    responseBottle.clear();
-    responseBottle.addVocab(COLLATZ_VOCAB_ITEM);
-    responseBottle.addDouble(nResponse);
-    responseBottle.addDouble(tResponse);
-    serverPort.reply(responseBottle);
+    yarp::os::Bottle reply;
+    reply.clear();
+    reply.addVocab(COLLATZ_VOCAB_ITEM);
+    reply.addDouble(nResponse);
+    reply.addDouble(tResponse);
+    serverPort.reply(reply);
 }
 
 void Server::computeResponse(int request) {
@@ -32,8 +35,10 @@ void Server::computeResponse(int request) {
     tResponse = FIFO.back() - 1;
     nResponse = counter;
     for (std::vector<int>::iterator iterator = FIFO.begin(); iterator != FIFO.end(); ++iterator) {
-        if (*iterator == request)
+        if (*iterator == request) {
             FIFO.erase(iterator);
+            break;
+        }
     }
 }
 
@@ -42,12 +47,13 @@ bool Server::configure(yarp::os::ResourceFinder &rf){
             rf.check("name", yarp::os::Value("server")).asString();
     yarp::os::RFModule::setName(moduleName.c_str());
 
-    rpcPortName =  "/";
-    rpcPortName += getName();
-    rpcPortName  += "/commands";
+    commandPortName =  "/";
+    commandPortName += getName();
+    commandPortName  += "/commands";
 
-    if (!rpcPort.open(rpcPortName.c_str())) {
-        std::cout << getName() << ": Unable to open port " << rpcPortName << std::endl;
+    if (!commandPort.open(commandPortName.c_str())) {
+        std::cout << getName() << ": Unable to open port " << commandPortName << std::endl;
+        close();
         return false;
     }
 
@@ -56,17 +62,18 @@ bool Server::configure(yarp::os::ResourceFinder &rf){
 
     if (!serverPort.open(serverPortName.c_str())) {
         std::cout << getName() << ": Unable to open port " << serverPortName << std::endl;
+        close();
         return false;
     }
 
     counter = 0;
     start();
-    return this->yarp().attachAsServer(rpcPort);
+    return this->yarp().attachAsServer(commandPort);
 }
 
 bool Server::close() {
     serverPort.close();
-    rpcPort.close();
+    commandPort.close();
     return true;
 }
 
@@ -80,8 +87,8 @@ void Server::start() {
 }
 
 void Server::stop() {
-    close();
     std::cout << "Server stopping" << std::endl;
+    close();
 }
 
 void Server::pause() {
@@ -90,15 +97,21 @@ void Server::pause() {
 }
 
 void Server::printFIFO() {
+    yarp::os::Mutex mutex;
+    mutex.lock();
     std::cout << "FIFO = " << std::endl;
     for (std::vector<int>::iterator iterator = FIFO.begin(); iterator != FIFO.end(); ++iterator) {
         std::cout << *iterator << std::endl;
     }
+    mutex.unlock();
 }
 
 void Server::emptyFIFO() {
+    yarp::os::Mutex mutex;
+    mutex.lock();
     std::cout << "Emptying FIFO and reinitializing server" << std::endl;
     FIFO.clear();
     counter = 0;
+    mutex.unlock();
 }
 

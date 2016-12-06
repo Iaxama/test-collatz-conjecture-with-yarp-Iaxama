@@ -10,18 +10,19 @@
 #include <vocabs.hpp>
 #include <queue>
 
-#define PERIOD 1
+#define PERIOD 0
 
 class Server : public yarp::os::RFModule, public ServerIDLInterface{
 
 private:
 //    yarp::os::BufferedPort<yarp::os::Bottle> requestPort;
 //    yarp::os::BufferedPort<yarp::os::Bottle> responsePort;
-    yarp::os::Port rpcPort;
-    std::string rpcPortName;
+    yarp::os::RpcServer commandPort;
+    std::string commandPortName;
     yarp::os::RpcServer serverPort;
     std::string serverPortName;
     std::vector<int> FIFO;
+    yarp::os::Bottle request;
 
     int nResponse;
     int tResponse;

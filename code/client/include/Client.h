@@ -7,8 +7,8 @@
 class Client : public yarp::os::RFModule, ClientIDLInterface{
 private:
 
-    yarp::os::Port rpcPort;
-    std::string rpcPortName;
+    yarp::os::RpcServer commandPort;
+    std::string commandPortName;
     yarp::os::RpcClient clientPort;
     std::string clientPortName;
     int n;
